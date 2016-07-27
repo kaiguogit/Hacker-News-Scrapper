@@ -8,13 +8,14 @@ class Post
     @title = extract_title
     @points = extract_points
     @item_id = extract_item_id
-    @comments = extract_comment
+    @comments = []
+    extract_comment
   end
 
   # TODO change to get from url later
   # It only get from local html file for now
   def parse_html(url)
-    Nokogiri::HTML(File.open('post.html'))
+    Nokogiri::HTML(open(url).read)
   end
 
   def add_comment(comment)
@@ -24,19 +25,18 @@ class Post
   private
 
   def extract_points
-    get_inner_text('span.score')[0]
+    matches = get_inner_text('span.score')[0].match(/\d+/)
+    nil_array_guard(matches).to_i
   end
 
   def extract_comment
-    result = []
     comment = get_inner_text('tr.comtr span.comment > span')
     user = get_inner_text('tr.comtr span.comhead > a.hnuser:first-child')
     age = get_inner_text('tr.comtr span.comhead > span.age > a:first-child')
     range = (0...[comment.size, user.size, age.size].max)
     range.each do |i|
-      result << Comment.new(User.new(user[i]), age[i], comment[i])
+      add_comment(Comment.new(User.new(user[i]), age[i], comment[i].strip))
     end
-    result
   end
 
   def extract_title
@@ -51,7 +51,7 @@ class Post
 
   def extract_item_id
     matches = url.match(/(?<=item\?id=)(\d+)$/)
-    nil_array_guard(matches)
+    nil_array_guard(matches).to_i
   end
 
   def nil_array_guard(array)
