@@ -4,6 +4,7 @@ require_relative 'user'
 require_relative 'comment'
 require 'open-uri'
 require 'colorize'
+require 'pry-byebug'
 
 
 def print_comment(comment)
@@ -37,9 +38,9 @@ def scrape(url)
   puts "item_id: #{post.item_id}".magenta.bold
   post
 end
-
 if ARGV.length == 1
   scrape(ARGV[0])
+
 elsif ARGV.length == 2
   case ARGV[1].downcase
   when "comments"
