@@ -50,9 +50,8 @@ class Post
     @item_id = extract_item_id
     @comments = []
     extract_comment
+    #extract_comments(site_type, doc)
   end
-
-
 
   private
 
@@ -90,7 +89,7 @@ class Post
 
   def extract_points
     matches = get_inner_text('span.score')
-    nil_array_guard(matches)
+    try_to_get_first_element(matches)
   end
 
   def extract_comment
@@ -98,6 +97,10 @@ class Post
     comment = get_inner_text(EXPECTED_SITES[@site][:comment_text])
     user = get_inner_text(EXPECTED_SITES[@site][:comment_user])
     age = get_inner_text(EXPECTED_SITES[@site][:comment_age])
+    
+    # either they are always the same, some values are null, in which we can simlify this code
+    # they are not the same, we need to save it so taht they are the same so wehn we assemble it, the user s match the comment
+
     range = (0...[comment.size, user.size, age.size].max)
     range.each do |i|
       add_comment(Comment.new(User.new(user[i]), age[i], comment[i]))
@@ -116,10 +119,10 @@ class Post
 
   def extract_item_id
     matches = url.match(/#{EXPECTED_SITES[@site][:item_id]}/)
-    nil_array_guard(matches)
+    try_to_get_first_element(matches)
   end
 
-  def nil_array_guard(array)
+  def try_to_get_first_element(array)
     array.nil? ? nil : array[0]
   end
 end 
